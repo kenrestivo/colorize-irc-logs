@@ -146,10 +146,11 @@ a:link  { color: #555; }
   [channel date]
   (colorize-channel (fetch-log channel date) channel date))
 
+
 (defn -main
   "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
   [channel date & args]
-  (fetch-and-colorize-channel  channel date))
+  (spit (date->outfilename date) (fetch-and-colorize-channel channel date)))
 
 
 (defn parse-out-all-users
