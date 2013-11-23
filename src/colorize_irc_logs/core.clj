@@ -115,21 +115,13 @@ a:link  { color: #555; }
 (declare parse-out-all-users)
 (declare assign-colors-to-users)
 
-(defn -main
+
+(defn colorize-channel
   "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
-  [& args]
-  (let [channel     (first args)
-        ;; _           (println "Channel:" channel)
-        date        (second args)
-        ;; _           (println "Date:" date)
+  [channel date & args]
+  (let [channel     channel
         infilename  (str date ".txt")
-        ;; _           (println "Infile name:" infilename)
-        ;; "YYYY-MM-DD" --> "YYYY/MM-DD.html"
-        outfilename (str (subs date 0 4)
-                         "/"
-                         (subs (str date ".html") 5))
-        ;; _           (println "Outfile name:" outfilename)
-        url         (str base-url channel "/" infilename)
+        url         
         content     (if (.exists (java.io.File. infilename))
                       (do (println (str "Found and will use local file: " infilename))
                           (slurp infilename))
@@ -142,6 +134,25 @@ a:link  { color: #555; }
                         (str "#" channel " on " date)  ; title
                         content
                         user-colors)))
+
+
+
+(defn date->outfilename
+  [date]
+  (str (subs date 0 4)
+       "/"
+       (subs (str date ".html") 5)))
+
+
+(defn fetch-log
+  [channel date]
+  (slurp (str base-url channel "/" date ".txt")))
+
+(defn -main
+  "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
+  [channel date & args]
+  (colorize-channel channel date))
+
 
 (defn parse-out-all-users
   [content]
@@ -162,13 +173,12 @@ a:link  { color: #555; }
 (defn render-log-as-html
   "`content` is one big long string --- the plain text
 content of the irc log."
-  [outfilename title content user-colors]
+  [title content user-colors]
   (let [header (str/replace html-header "{{title}}" title)]
-    (spit outfilename
-          (str header
-               (parse-out-table-rows content
-                                     user-colors)
-               html-footer))))
+    (str header
+         (parse-out-table-rows content
+                               user-colors)
+         html-footer)))
 
 (declare rowify-line)
 
