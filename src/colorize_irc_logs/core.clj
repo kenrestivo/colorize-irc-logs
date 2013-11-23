@@ -116,25 +116,6 @@ a:link  { color: #555; }
 (declare assign-colors-to-users)
 
 
-(defn colorize-channel
-  "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
-  [channel date & args]
-  (let [channel     channel
-        infilename  (str date ".txt")
-        url         
-        content     (if (.exists (java.io.File. infilename))
-                      (do (println (str "Found and will use local file: " infilename))
-                          (slurp infilename))
-                      (slurp url))
-        all-users   (parse-out-all-users content)
-        user-colors (assign-colors-to-users all-users
-                                            all-other-colors
-                                            custom-user-colors)]
-    (render-log-as-html outfilename
-                        (str "#" channel " on " date)  ; title
-                        content
-                        user-colors)))
-
 
 
 (defn date->outfilename
@@ -148,10 +129,27 @@ a:link  { color: #555; }
   [channel date]
   (slurp (str base-url channel "/" date ".txt")))
 
+
+
+(defn colorize-channel
+  "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
+  [content channel date]
+  (let [all-users   (parse-out-all-users content)
+        user-colors (assign-colors-to-users all-users
+                                            all-other-colors
+                                            custom-user-colors)]
+    (render-log-as-html (str "#" channel " on " date)  ; title
+                        content
+                        user-colors)))
+
+(defn fetch-and-colorize-channel
+  [channel date]
+  (colorize-channel (fetch-log channel date) channel date))
+
 (defn -main
   "Expects 2 args: the channel name and the date in YYYY-MM-DD format."
   [channel date & args]
-  (colorize-channel channel date))
+  (fetch-and-colorize-channel  channel date))
 
 
 (defn parse-out-all-users
@@ -269,3 +267,10 @@ an html row (which would go into a table)."
   (str/replace text
                #"(https?://\S+)"
                "<i><a href=\"$1\">$1</a></i>"))
+
+
+(comment
+
+  (spit "/tmp/foo.html" (fetch-and-colorize-channel "clojure" "2013-11-23"))
+
+  )

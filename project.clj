@@ -3,6 +3,10 @@
   :url "https://github.com/uvtc/colorize-irc-logs"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [hiccup "1.0.1"]]
-  :main colorize-irc-logs.core)
+  :main colorize-irc-logs.core
+  :aliases {
+            "tr" ["with-profile" "+user,+dev"
+                  "trampoline" "repl" ":headless"]}
+  )
